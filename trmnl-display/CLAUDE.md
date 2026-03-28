@@ -2,6 +2,38 @@
 
 This document provides everything Claude Code needs to set up, build, test, debug, and maintain the TRMNL display project on a Raspberry Pi Zero W with a **Pimoroni Inky Impression Spectra 13.3"** e-ink display (1600x1200, 6-color Spectra 6).
 
+## Remote Execution via SSH
+
+All commands that need to run on the Pi (building, testing, running the application, installing packages, etc.) **must be executed via SSH**. Do not attempt to run Pi-targeted commands locally.
+
+**SSH connection details** are stored in `ssh-instructions.txt` at the project root. Use `sshpass` to connect:
+```bash
+sshpass -p '<password>' ssh -o StrictHostKeyChecking=no <username>@<ip-address> '<command>'
+```
+
+**Project directory on the Pi:** `~/Documents/trmnl/pi-trmnl`
+
+All code, build scripts, and runtime files live in this directory on the Pi.
+
+## Keeping Code in Sync with Git
+
+The Pi has its own clone of the repository at `~/Documents/trmnl/pi-trmnl`. After making code changes locally and committing/pushing them, **always pull the latest changes on the Pi** before building or running:
+```bash
+sshpass -p '<password>' ssh <username>@<ip-address> 'cd ~/Documents/trmnl/pi-trmnl && git pull'
+```
+
+Workflow:
+1. Edit code locally in this repository
+2. Commit and push changes to the remote
+3. SSH into the Pi and `git pull` in `~/Documents/trmnl/pi-trmnl`
+4. Build and/or run on the Pi via SSH
+
+Never edit files directly on the Pi — always go through git so local and remote stay in sync.
+
+## Commit Guidelines
+
+When committing, describe only what changed or what the code does. Do not mention who made the changes — do not cite yourself, Anthropic, the user, or anyone else. Stick strictly to the substance of the changes.
+
 ## Project Overview
 
 A Go application that polls the TRMNL API for images and renders them on an e-ink display. The 13.3" Spectra display is driven via a Python script (`show_image.py`) using Pimoroni's official `inky` library, because the C-based `bb_epaper` library does not support this panel.
